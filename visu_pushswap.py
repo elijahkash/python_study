@@ -12,7 +12,7 @@ import collections as coll
 
 # TODO: depend from display?
 DEFAULT_WIN_SIZE_X = 1000
-DEFAULT_WIN_SIZE_Y = 1000
+DEFAULT_WIN_SIZE_Y = 1030
 WIN_TITLE = 'visualizer for push-swap'
 DEFAULT_RANGE_A = 0
 DEFAULT_RANGE_B = 100
@@ -25,10 +25,28 @@ class PushSwapStacks:
 	describe stacks for push-swap algorith
 	"""
 
-	def __init__(self, initstate):
+	def __init__(self):
 		""" initstate: Iterable[_T]=..."""
-		self.stack_a = coll.deque(initstate, len(initstate))
-		self.stack_b = coll.deque(maxlen=len(initstate))
+		self.stack_a = coll.deque()
+		self.stack_b = coll.deque()
+		self.cmd = {
+			'pa': self.pa,
+			'pb': self.pa,
+			'sa': self.pa,
+			'sb': self.pa,
+			'ss': self.pa,
+			'ra': self.pa,
+			'rb': self.pa,
+			'rr': self.pa,
+			'rra': self.pa,
+			'rrb': self.pa,
+			'rrr': self.pa
+		}
+
+	def new_data(self, initstate):
+		self.stack_a.clear()
+		self.stack_b.clear()
+		self.stack_a.extend(initstate)
 
 	def pa(self):
 		if len(self.stack_b):
@@ -73,10 +91,23 @@ class PushSwapStacks:
 		self.sb()
 
 
+class GameInfo:
+	def __init__(self):
+		self.src_data = []
+		self.st = PushSwapStacks()
+		self.op_list = []
+		self.cur_op = 0
+		self.speed = 1
+		self.op_count = 0
+		self.stack_state = 'OK'
+		self.use_builtin = tk.IntVar()
+		self.use_builtin.set(1)
+
+
 class VisuPS(ttk.Frame):
 	def __init__(self, root):
 		super().__init__(master=root, padding="5 2 5 2")
-		root.wm_resizable(False, False)
+		# root.wm_resizable(False, False)
 		root.geometry(f'{DEFAULT_WIN_SIZE_X}x{DEFAULT_WIN_SIZE_Y}+0+0')
 		root.title(WIN_TITLE)
 		root.columnconfigure(0, weight=1)
@@ -85,11 +116,13 @@ class VisuPS(ttk.Frame):
 		self.style = ttk.Style()
 		self.style.theme_use('aqua')
 		self.grid(sticky=(tk.N, tk.W, tk.E, tk.S))
+		self.game_info = GameInfo()
 		self.__initUI()
 
 	def __initUI(self):
 		self.canvas_a = tk.Canvas(self)
 		self.canvas_b = tk.Canvas(self)
+# TODO: block user unput
 		self.cmd_list = scrolledtext.ScrolledText(self, width=5)
 		self.menu_frame = ttk.Frame(self)
 		self.quit_button = ttk.Button(
@@ -120,23 +153,27 @@ class VisuPS(ttk.Frame):
 		self.entry_range_a_label = ttk.Label(self.menu_frame, text='<- input a')
 		self.entry_range_b_label = ttk.Label(self.menu_frame, text='<- input b')
 # TODO: here!
-		self.init_var = tk.IntVar(self.root)
-		self.init_var.set(1)
+		# self.init_var = tk.IntVar(self.root)
+		# self.init_var.set(1)
 		self.use_builtin = ttk.Checkbutton(
 			self.menu_frame, text='use built-in algo',
-			command=self.temp_pass, variable=self.init_var
+			command=self.builtin_click, variable=self.game_info.use_builtin
 		)
 		self.input_file_name = ttk.Label(
 			self.menu_frame, text='Custom push_swap:'
 		)
-		self.push_swap_file_name = ttk.Entry(self.menu_frame, width=30)
-		# self.file = filedialog.askopenfilename()
-		self.open_file = ttk.Button(
-			self.menu_frame, text='choose file ...', command=self.temp_pass
+		self.push_swap_file_name = ttk.Entry(
+			self.menu_frame, width=30, state=tk.DISABLED
 		)
-# TODO: here!
-		self.op_num = ttk.Label(self.menu_frame, text='operations count = ')
-		self.stack_state = ttk.Label(self.menu_frame, text='stack state:  ')
+		self.open_file = ttk.Button(
+			self.menu_frame, text='choose file ...', command=self.choose_file,
+			state=tk.DISABLED
+		)
+		self.op_num = ttk.Label(
+			self.menu_frame,
+			text=f'operations count = {self.game_info.op_count}'
+		)
+		self.stack_state = ttk.Label(self.menu_frame, text=f'stack state:  ')
 		self.powered_by = ttk.Label(
 			self.menu_frame, text='powered by Ilya Kashnitkiy', anchor=tk.CENTER
 		)
@@ -188,6 +225,19 @@ class VisuPS(ttk.Frame):
 	def temp_pass(self):
 		print("pass")
 		pass
+
+	def choose_file(self):
+		tmp = filedialog.askopenfilename()
+		self.push_swap_file_name.delete(0, tk.END)
+		self.push_swap_file_name.insert(0, tmp)
+
+	def builtin_click(self):
+		if self.game_info.use_builtin.get():
+			self.open_file.config(state=tk.DISABLED)
+			self.push_swap_file_name.config(state=tk.DISABLED)
+		else:
+			self.open_file.config(state=tk.NORMAL)
+			self.push_swap_file_name.config(state=tk.NORMAL)
 
 	def start(self):
 		pass
