@@ -6,6 +6,7 @@ import random as rand
 import time
 import tkinter as tk
 from tkinter import scrolledtext
+from tkinter import filedialog
 import ttk
 import collections as coll
 
@@ -99,6 +100,12 @@ class VisuPS(ttk.Frame):
 			self.menu_frame, text='use built-in algo',
 			command=self.temp_pass, variable=self.init_var)
 		self.use_builtin.grid(row=7, columnspan=3, sticky=STICKY_FULL)
+		self.input_file_name = ttk.Label(self.menu_frame, text='Custom push_swap:')
+		self.input_file_name.grid(row=8, columnspan=3, sticky=STICKY_FULL)
+		self.push_swap_file_name = ttk.Entry(self.menu_frame, width=30)
+		# self.file = filedialog.askopenfilename()
+		self.push_swap_file_name.grid(
+			in_=self.menu_frame, row=9, columnspan=3, sticky=STICKY_FULL)
 
 	def visu_exit(self):
 		tk.Tk.quit(self.root)
@@ -120,42 +127,3 @@ def main():
 
 if __name__ == '__main__':
 	exit(main())
-
-# from tkinter import *
-# from tkinter import ttk
-
-# def calculate(*args):
-#     try:
-#         value = float(feet.get())
-#         meters.set((0.3048 * value * 10000.0 + 0.5)/10000.0)
-#     except ValueError:
-#         pass
-
-# root = Tk()
-# root.title("Feet to Meters")
-
-# mainframe = ttk.Frame(root, padding="3 3 12 12")
-# mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-# root.columnconfigure(0, weight=1)
-# root.rowconfigure(0, weight=1)
-
-# feet = StringVar()
-# meters = StringVar()
-
-# feet_entry = ttk.Entry(mainframe, width=7, textvariable=feet)
-# feet_entry.grid(column=2, row=1, sticky=(W, E))
-
-# ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
-# ttk.Button(mainframe, text="Calculate", command=calculate).grid(column=3, row=3, sticky=W)
-
-# ttk.Label(mainframe, text="feet").grid(column=3, row=1, sticky=W)
-# ttk.Label(mainframe, text="is equivalent to").grid(column=1, row=2, sticky=E)
-# ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
-
-# for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-# feet_entry.focus()
-# root.bind('<Return>', calculate)
-
-# root.mainloop()
-
