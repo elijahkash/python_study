@@ -9,6 +9,7 @@ from tkinter import scrolledtext
 from tkinter import filedialog
 import ttk
 import collections as coll
+import subprocess
 
 # TODO: depend from display?
 DEFAULT_WIN_SIZE_X = 1000
@@ -30,6 +31,9 @@ class PushSwapStacks:
 		""" initstate: Iterable[_T]=..."""
 		self.stack_a = coll.deque(initstate)
 		self.stack_b = coll.deque()
+		self.delta_x = 1
+		self.delta_y = 1
+		# self.delta_color
 		self.cmd = {
 			'pa': self.pa,
 			'pb': self.pa,
@@ -48,6 +52,9 @@ class PushSwapStacks:
 		self.stack_a.clear()
 		self.stack_b.clear()
 		self.stack_a.extend(initstate)
+
+	def set_visu_info(x, y):
+		pass
 
 	def pa(self):
 		if len(self.stack_b):
@@ -110,7 +117,7 @@ class GameInfo:
 class VisuPS(ttk.Frame):
 	def __init__(self, root):
 		super().__init__(master=root, padding="5 2 5 2")
-		# root.wm_resizable(False, False)
+		root.wm_resizable(False, False)
 		root.geometry(f'{DEFAULT_WIN_SIZE_X}x{DEFAULT_WIN_SIZE_Y}+0+0')
 		root.title(WIN_TITLE)
 		root.columnconfigure(0, weight=1)
@@ -121,6 +128,11 @@ class VisuPS(ttk.Frame):
 		self.grid(sticky=(tk.N, tk.W, tk.E, tk.S))
 		self.game_info = GameInfo()
 		self.__initUI()
+		self.update()
+		self.game_info.st.set_visu_info(
+			self.canvas_a.winfo_width(),
+			self.canvas_a.winfo_height()
+		)
 
 	def __initUI(self):
 		self.canvas_a = tk.Canvas(self)
@@ -144,10 +156,11 @@ class VisuPS(ttk.Frame):
 			self.menu_frame, text='>>', command=self.speed_up
 		)
 		self.reset_button = ttk.Button(
-			self.menu_frame, text='Reset', command=self.temp_pass
+			self.menu_frame, text='Reset', command=self.reset
 		)
 		self.generate_new_data_button = ttk.Button(
-			self.menu_frame, text='Generate new [a, b)', command=self.temp_pass
+			self.menu_frame, text='Generate new [a, b)',
+			command=self.generate_new_data
 		)
 		self.entry_range_a = ttk.Entry(self.menu_frame, width=10)
 		self.entry_range_a.insert(0, str(DEFAULT_RANGE_A))
@@ -266,8 +279,10 @@ class VisuPS(ttk.Frame):
 	def game(self):
 		if self.game_info.game:
 			self.game_info.game = 0
+			self.speed_pause_button.config(text='▷')
 		else:
 			self.game_info.game = time.time()
+			self.speed_pause_button.config(text='||')
 			self.next_op(self.game_info.game)
 
 	def next_op(self, id_value):
@@ -276,8 +291,35 @@ class VisuPS(ttk.Frame):
 		print('next', time.time())
 		self.after(self.game_info.speed, self.next_op, id_value)
 
+	def reset(self):
+		self.cur_op = 0
+		self.game_info.game = 0
+		self.game_info.st.new_data(self.game_info.src_data)
+		self.speed_pause_button.config(text='▷')
+
+	def generate_new_data(self):
+		self.reset()
+		a = int(self.entry_range_a.get())
+		b = int(self.entry_range_b.get())
+		self.game_info.src_data = [x for x in range(a, b)]
+		rand.shuffle(self.game_info.src_data)
+		self.game_info.st.new_data(self.game_info.src_data)
+
 	def start(self):
-		pass
+		self.game_info.op_list.clear()
+		if self.game_info.use_builtin.get():
+			pass
+		else:
+			push_swap = subprocess.run(
+				[
+					self.push_swap_file_name.get(),
+					*[str(x) for x in self.game_info.src_data]
+				],
+				capture_output=True
+			)
+			self.game_info.op_list = push_swap.stdout.decode('utf-8').rstrip(
+			).split('\n')
+		print(self.game_info.op_list)
 
 
 def main():
