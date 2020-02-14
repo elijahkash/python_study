@@ -50,7 +50,7 @@ class PushSwapStacks:
 		self.stack_a.clear()
 		self.stack_b.clear()
 		tmp = sorted(initstate)
-		self.stack_a.extend([tmp.index(x) for x in initstate])
+		self.stack_a.extend([tmp.index(x) + 1 for x in initstate])
 
 	def pa(self):
 		if len(self.stack_b):
@@ -193,6 +193,8 @@ class VisuPS(ttk.Frame):
 			self.menu_frame, text='github.com/elijahkash', anchor=tk.CENTER
 		)
 
+# TODO: current op
+
 		self.rowconfigure(0, weight=1)
 		self.columnconfigure(0, weight=1)
 		self.columnconfigure(1, weight=20)
@@ -281,17 +283,22 @@ class VisuPS(ttk.Frame):
 		if self.game_info.game != id_value:
 			return
 		if len(self.game_info.op_list) == self.game_info.cur_op:
+			self.draw()
 			self.update_status()
 			return
 		self.game_info.st.cmd[self.game_info.op_list[self.game_info.cur_op]]()
 		self.game_info.cur_op += 1
-		self.draw()
+		if self.game_info.speed:
+			self.draw()
 		self.cmd_list.config(state='normal')
 		self.cmd_list.insert(
 			tk.END, self.game_info.op_list[self.game_info.cur_op - 1] + '\n'
 		)
 		self.cmd_list.yview(tk.END)
 		self.cmd_list.config(state='disabled')
+		if self.game_info.speed == 0 and self.game_info.cur_op % 50 == 0:
+			self.draw()
+			self.update()
 		self.after(self.game_info.speed, self.next_op, id_value)
 
 	def reset(self):
@@ -355,12 +362,13 @@ class VisuPS(ttk.Frame):
 		self.canvas_b.delete('all')
 		if len(self.game_info.src_data) == 0:
 			return
-		delta_x = self.canvas_a.winfo_width() / len(self.game_info.src_data)
-		delta_y = self.canvas_a.winfo_height() / len(self.game_info.src_data)
+		delta_x = (self.canvas_a.winfo_width() - 10) / len(self.game_info.src_data)
+		delta_y = (self.canvas_a.winfo_height() - 10) / len(self.game_info.src_data)
 		for index, x in enumerate(self.game_info.st.stack_a):
 			self.canvas_a.create_rectangle(
-				0, (index - 1) * delta_y,
-				x * delta_x, index * delta_y,
+				0 + 5, index * delta_y + 5,
+				x * delta_x + 5, (index + 1) * delta_y + 5,
+				width=0,
 				fill="#fb0"
 			)
 		for index, x in enumerate(self.game_info.st.stack_b):
