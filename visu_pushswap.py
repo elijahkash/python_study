@@ -182,7 +182,7 @@ class VisuPS(ttk.Frame):
 			self.menu_frame,
 			text=f'operations count = {self.game_info.op_count}'
 		)
-		self.stack_state = ttk.Label(self.menu_frame, text=f'stack state:  ')
+		self.stack_state = ttk.Label(self.menu_frame, text='stack state:  ')
 		self.powered_by = ttk.Label(
 			self.menu_frame, text='powered by Ilya Kashnitkiy', anchor=tk.CENTER
 		)
@@ -277,16 +277,35 @@ class VisuPS(ttk.Frame):
 	def next_op(self, id_value):
 		if self.game_info.game != id_value:
 			return
+		if len(self.game_info.op_list) == self.game_info.cur_op:
+			self.update_status()
+			return
 		self.game_info.st.cmd[self.game_info.op_list[self.game_info.cur_op]]()
 		self.game_info.cur_op += 1
 		self.draw()
 		self.after(self.game_info.speed, self.next_op, id_value)
 
 	def reset(self):
-		self.cur_op = 0
+		self.game_info.cur_op = 0
 		self.game_info.game = 0
 		self.game_info.st.new_data(self.game_info.src_data)
 		self.speed_pause_button.config(text='▷')
+		self.reset_status()
+
+	def update_status(self):
+		if len(self.game_info.src_data) == len(self.game_info.st.stack_a) and all(self.game_info.st.stack_a[i] < self.game_info.st.stack_a[i + 1] for i in range(len(self.game_info.src_data) - 1)):
+			self.stack_state.config(
+				text='stack state:  OK'
+			)
+		else:
+			self.stack_state.config(
+				text='stack state:  KO'
+			)
+
+	def reset_status(self):
+		self.stack_state.config(
+			text='stack state:'
+		)
 
 	def generate_new_data(self):
 		self.reset()
@@ -310,7 +329,8 @@ class VisuPS(ttk.Frame):
 			)
 			self.game_info.op_list = push_swap.stdout.decode('utf-8').rstrip(
 			).split('\n')
-		# print(self.game_info.op_list)
+		self.game_info.op_count = len(self.game_info.op_list)
+		self.op_num.config(text=f'operations count = {self.game_info.op_count}')
 
 	def draw(self):
 		self.canvas_a.delete('all')
