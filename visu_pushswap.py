@@ -16,6 +16,7 @@ DEFAULT_WIN_SIZE_Y = 1030
 WIN_TITLE = 'visualizer for push-swap'
 DEFAULT_RANGE_A = 0
 DEFAULT_RANGE_B = 100
+SPEED_DELTA = 1.5
 
 STICKY_FULL = {'sticky': (tk.W, tk.E, tk.N, tk.S)}
 
@@ -25,9 +26,9 @@ class PushSwapStacks:
 	describe stacks for push-swap algorith
 	"""
 
-	def __init__(self):
+	def __init__(self, initstate):
 		""" initstate: Iterable[_T]=..."""
-		self.stack_a = coll.deque()
+		self.stack_a = coll.deque(initstate)
 		self.stack_b = coll.deque()
 		self.cmd = {
 			'pa': self.pa,
@@ -93,13 +94,15 @@ class PushSwapStacks:
 
 class GameInfo:
 	def __init__(self):
-		self.src_data = []
-		self.st = PushSwapStacks()
+		self.src_data = [x for x in range(DEFAULT_RANGE_A, DEFAULT_RANGE_B)]
+		rand.shuffle(self.src_data)
+		self.st = PushSwapStacks(self.src_data)
 		self.op_list = []
 		self.cur_op = 0
-		self.speed = 1
+		self.game = 0
+		self.speed = 1000
 		self.op_count = 0
-		self.stack_state = 'OK'
+		self.stack_state = ''
 		self.use_builtin = tk.IntVar()
 		self.use_builtin.set(1)
 
@@ -129,16 +132,16 @@ class VisuPS(ttk.Frame):
 			self.menu_frame, text='Quit', command=self.visu_exit
 		)
 		self.start_button = ttk.Button(
-			self.menu_frame, text='Start', command=self.start
+			self.menu_frame, text='Calculate', command=self.start
 		)
 		self.speed_down_button = ttk.Button(
-			self.menu_frame, text='<<', command=self.temp_pass
+			self.menu_frame, text='<<', command=self.speed_down
 		)
 		self.speed_pause_button = ttk.Button(
-			self.menu_frame, text='▷', command=self.temp_pass
+			self.menu_frame, text='▷', command=self.game
 		)
 		self.speed_up_button = ttk.Button(
-			self.menu_frame, text='>>', command=self.temp_pass
+			self.menu_frame, text='>>', command=self.speed_up
 		)
 		self.reset_button = ttk.Button(
 			self.menu_frame, text='Reset', command=self.temp_pass
@@ -168,6 +171,10 @@ class VisuPS(ttk.Frame):
 		self.open_file = ttk.Button(
 			self.menu_frame, text='choose file ...', command=self.choose_file,
 			state=tk.DISABLED
+		)
+		self.speed = ttk.Label(
+			self.menu_frame,
+			text=f'speed (delay between ops in msec): {self.game_info.speed}'
 		)
 		self.op_num = ttk.Label(
 			self.menu_frame,
@@ -216,8 +223,9 @@ class VisuPS(ttk.Frame):
 		self.open_file.grid(row=8, column=2, **STICKY_FULL)
 		self.powered_by.grid(row=40, column=0, columnspan=3, **STICKY_FULL)
 		self.git_link.grid(row=41, column=0, columnspan=3, **STICKY_FULL)
-		self.op_num.grid(row=13, column=0, columnspan=3, **STICKY_FULL)
-		self.stack_state.grid(row=14, column=0, columnspan=3, **STICKY_FULL)
+		self.speed.grid(row=13, column=0, columnspan=3, **STICKY_FULL)
+		self.op_num.grid(row=14, column=0, columnspan=3, **STICKY_FULL)
+		self.stack_state.grid(row=15, column=0, columnspan=3, **STICKY_FULL)
 
 	def visu_exit(self):
 		tk.Tk.quit(self.root)
@@ -238,6 +246,35 @@ class VisuPS(ttk.Frame):
 		else:
 			self.open_file.config(state=tk.NORMAL)
 			self.push_swap_file_name.config(state=tk.NORMAL)
+
+	def speed_up(self):
+		self.game_info.speed = int(self.game_info.speed / SPEED_DELTA)
+		self.speed.config(
+			text=f'speed (delay between ops in msec): {self.game_info.speed}'
+		)
+
+	def speed_down(self):
+		self.game_info.speed = int(round(self.game_info.speed * SPEED_DELTA))
+		if self.game_info.speed > 1000:
+			self.game_info.speed = 1000
+		elif self.game_info.speed == 0:
+			self.game_info.speed = 1
+		self.speed.config(
+			text=f'speed (delay between ops in msec): {self.game_info.speed}'
+		)
+
+	def game(self):
+		if self.game_info.game:
+			self.game_info.game = 0
+		else:
+			self.game_info.game = time.time()
+			self.next_op(self.game_info.game)
+
+	def next_op(self, id_value):
+		if self.game_info.game != id_value:
+			return
+		print('next', time.time())
+		self.after(self.game_info.speed, self.next_op, id_value)
 
 	def start(self):
 		pass
