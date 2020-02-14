@@ -13,7 +13,7 @@ import subprocess
 
 # TODO: depend from display?
 DEFAULT_WIN_SIZE_X = 1000
-DEFAULT_WIN_SIZE_Y = 1030
+DEFAULT_WIN_SIZE_Y = 1000
 WIN_TITLE = 'visualizer for push-swap'
 DEFAULT_RANGE_A = 0
 DEFAULT_RANGE_B = 100
@@ -29,48 +29,44 @@ class PushSwapStacks:
 
 	def __init__(self, initstate):
 		""" initstate: Iterable[_T]=..."""
-		self.stack_a = coll.deque(initstate)
+		self.stack_a = coll.deque()
 		self.stack_b = coll.deque()
-		self.delta_x = 1
-		self.delta_y = 1
-		# self.delta_color
+		self.new_data(initstate)
 		self.cmd = {
 			'pa': self.pa,
-			'pb': self.pa,
-			'sa': self.pa,
-			'sb': self.pa,
-			'ss': self.pa,
-			'ra': self.pa,
-			'rb': self.pa,
-			'rr': self.pa,
-			'rra': self.pa,
-			'rrb': self.pa,
-			'rrr': self.pa
+			'pb': self.pb,
+			'sa': self.sa,
+			'sb': self.sb,
+			'ss': self.ss,
+			'ra': self.ra,
+			'rb': self.rb,
+			'rr': self.rr,
+			'rra': self.rra,
+			'rrb': self.rrb,
+			'rrr': self.rrr
 		}
 
 	def new_data(self, initstate):
 		self.stack_a.clear()
 		self.stack_b.clear()
-		self.stack_a.extend(initstate)
-
-	def set_visu_info(x, y):
-		pass
+		tmp = sorted(initstate)
+		self.stack_a.extend([tmp.index(x) for x in initstate])
 
 	def pa(self):
 		if len(self.stack_b):
-			self.stack_b.appendleft(self.stack_b.popleft())
+			self.stack_a.appendleft(self.stack_b.popleft())
 
 	def pb(self):
 		if len(self.stack_a):
-			self.stack_b.appendlenf(self.stack_a.popleft())
+			self.stack_b.appendleft(self.stack_a.popleft())
 
 	def ra(self):
 		if len(self.stack_a):
-			self.stack_a.rotate()
+			self.stack_a.rotate(-1)
 
 	def rb(self):
 		if len(self.stack_b):
-			self.stack_b.rotate()
+			self.stack_b.rotate(-1)
 
 	def rr(self):
 		self.ra()
@@ -78,11 +74,11 @@ class PushSwapStacks:
 
 	def rra(self):
 		if len(self.stack_a):
-			self.stack_a.rotate(-1)
+			self.stack_a.rotate(1)
 
 	def rrb(self):
 		if len(self.stack_b):
-			self.stack_b.rotate(-1)
+			self.stack_b.rotate(1)
 
 	def rrr(self):
 		self.rra()
@@ -128,11 +124,7 @@ class VisuPS(ttk.Frame):
 		self.grid(sticky=(tk.N, tk.W, tk.E, tk.S))
 		self.game_info = GameInfo()
 		self.__initUI()
-		self.update()
-		self.game_info.st.set_visu_info(
-			self.canvas_a.winfo_width(),
-			self.canvas_a.winfo_height()
-		)
+		# self.update()
 
 	def __initUI(self):
 		self.canvas_a = tk.Canvas(self)
@@ -168,9 +160,6 @@ class VisuPS(ttk.Frame):
 		self.entry_range_b.insert(0, str(DEFAULT_RANGE_B))
 		self.entry_range_a_label = ttk.Label(self.menu_frame, text='<- input a')
 		self.entry_range_b_label = ttk.Label(self.menu_frame, text='<- input b')
-# TODO: here!
-		# self.init_var = tk.IntVar(self.root)
-		# self.init_var.set(1)
 		self.use_builtin = ttk.Checkbutton(
 			self.menu_frame, text='use built-in algo',
 			command=self.builtin_click, variable=self.game_info.use_builtin
@@ -288,7 +277,9 @@ class VisuPS(ttk.Frame):
 	def next_op(self, id_value):
 		if self.game_info.game != id_value:
 			return
-		print('next', time.time())
+		self.game_info.st.cmd[self.game_info.op_list[self.game_info.cur_op]]()
+		self.game_info.cur_op += 1
+		self.draw()
 		self.after(self.game_info.speed, self.next_op, id_value)
 
 	def reset(self):
@@ -319,7 +310,25 @@ class VisuPS(ttk.Frame):
 			)
 			self.game_info.op_list = push_swap.stdout.decode('utf-8').rstrip(
 			).split('\n')
-		print(self.game_info.op_list)
+		# print(self.game_info.op_list)
+
+	def draw(self):
+		self.canvas_a.delete('all')
+		self.canvas_b.delete('all')
+		delta_x = self.canvas_a.winfo_width() / len(self.game_info.src_data)
+		delta_y = self.canvas_a.winfo_height() / len(self.game_info.src_data)
+		for index, x in enumerate(self.game_info.st.stack_a):
+			self.canvas_a.create_rectangle(
+				0, (index - 1) * delta_y,
+				x * delta_x, index * delta_y,
+				fill="#fb0"
+			)
+		for index, x in enumerate(self.game_info.st.stack_b):
+			self.canvas_b.create_rectangle(
+				0, (index - 1) * delta_y,
+				x * delta_x, index * delta_y,
+				fill="#fb0"
+			)
 
 
 def main():
