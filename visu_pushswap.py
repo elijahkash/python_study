@@ -124,13 +124,16 @@ class VisuPS(ttk.Frame):
 		self.grid(sticky=(tk.N, tk.W, tk.E, tk.S))
 		self.game_info = GameInfo()
 		self.__initUI()
-		# self.update()
+		self.update()
+		self.draw()
 
 	def __initUI(self):
 		self.canvas_a = tk.Canvas(self)
 		self.canvas_b = tk.Canvas(self)
 # TODO: block user unput
-		self.cmd_list = scrolledtext.ScrolledText(self, width=5)
+		self.cmd_list = scrolledtext.ScrolledText(
+			self, width=5, state='disable'
+		)
 		self.menu_frame = ttk.Frame(self)
 		self.quit_button = ttk.Button(
 			self.menu_frame, text='Quit', command=self.visu_exit
@@ -283,6 +286,12 @@ class VisuPS(ttk.Frame):
 		self.game_info.st.cmd[self.game_info.op_list[self.game_info.cur_op]]()
 		self.game_info.cur_op += 1
 		self.draw()
+		self.cmd_list.config(state='normal')
+		self.cmd_list.insert(
+			tk.END, self.game_info.op_list[self.game_info.cur_op - 1] + '\n'
+		)
+		self.cmd_list.yview(tk.END)
+		self.cmd_list.config(state='disabled')
 		self.after(self.game_info.speed, self.next_op, id_value)
 
 	def reset(self):
@@ -291,20 +300,27 @@ class VisuPS(ttk.Frame):
 		self.game_info.st.new_data(self.game_info.src_data)
 		self.speed_pause_button.config(text='▷')
 		self.reset_status()
+		self.draw()
+		self.cmd_list.config(state='normal')
+		self.cmd_list.delete(1.0, tk.END)
+		self.cmd_list.config(state='disabled')
 
 	def update_status(self):
 		if len(self.game_info.src_data) == len(self.game_info.st.stack_a) and all(self.game_info.st.stack_a[i] < self.game_info.st.stack_a[i + 1] for i in range(len(self.game_info.src_data) - 1)):
 			self.stack_state.config(
-				text='stack state:  OK'
+				text='stack state:  OK',
+				foreground='green4'
 			)
 		else:
 			self.stack_state.config(
-				text='stack state:  KO'
+				text='stack state:  KO',
+				foreground='red2'
 			)
 
 	def reset_status(self):
 		self.stack_state.config(
-			text='stack state:'
+			text='stack state:',
+			foreground='black'
 		)
 
 	def generate_new_data(self):
@@ -314,8 +330,10 @@ class VisuPS(ttk.Frame):
 		self.game_info.src_data = [x for x in range(a, b)]
 		rand.shuffle(self.game_info.src_data)
 		self.game_info.st.new_data(self.game_info.src_data)
+		self.draw()
 
 	def start(self):
+		self.reset()
 		self.game_info.op_list.clear()
 		if self.game_info.use_builtin.get():
 			pass
@@ -335,6 +353,8 @@ class VisuPS(ttk.Frame):
 	def draw(self):
 		self.canvas_a.delete('all')
 		self.canvas_b.delete('all')
+		if len(self.game_info.src_data) == 0:
+			return
 		delta_x = self.canvas_a.winfo_width() / len(self.game_info.src_data)
 		delta_y = self.canvas_a.winfo_height() / len(self.game_info.src_data)
 		for index, x in enumerate(self.game_info.st.stack_a):
@@ -349,6 +369,7 @@ class VisuPS(ttk.Frame):
 				x * delta_x, index * delta_y,
 				fill="#fb0"
 			)
+		# self.update()
 
 
 def main():
