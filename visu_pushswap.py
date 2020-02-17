@@ -10,6 +10,7 @@ from tkinter import filedialog
 import ttk
 import collections as coll
 import subprocess
+from colour import Color
 
 # TODO: depend from display?
 DEFAULT_WIN_SIZE_X = 1000
@@ -125,6 +126,9 @@ class VisuPS(ttk.Frame):
 		self.game_info = GameInfo()
 		self.__initUI()
 		self.update()
+		self.colors = list(
+			Color("green").range_to(Color("red"), len(self.game_info.src_data))
+		)
 		self.draw()
 
 	def __initUI(self):
@@ -285,6 +289,8 @@ class VisuPS(ttk.Frame):
 		if len(self.game_info.op_list) == self.game_info.cur_op:
 			self.draw()
 			self.update_status()
+			self.game_info.game = 0
+			self.speed_pause_button.config(text='▷')
 			return
 		self.game_info.st.cmd[self.game_info.op_list[self.game_info.cur_op]]()
 		self.game_info.cur_op += 1
@@ -337,6 +343,9 @@ class VisuPS(ttk.Frame):
 		self.game_info.src_data = [x for x in range(a, b)]
 		rand.shuffle(self.game_info.src_data)
 		self.game_info.st.new_data(self.game_info.src_data)
+		self.colors = list(
+			Color("limegreen").range_to(Color("darkorange"), len(self.game_info.src_data))
+		)
 		self.draw()
 
 	def start(self):
@@ -369,13 +378,15 @@ class VisuPS(ttk.Frame):
 				0 + 5, index * delta_y + 5,
 				x * delta_x + 5, (index + 1) * delta_y + 5,
 				width=0,
-				fill="#fb0"
+				fill=self.colors[x - 1]
+				# fill="#fb0"
 			)
 		for index, x in enumerate(self.game_info.st.stack_b):
 			self.canvas_b.create_rectangle(
 				0, (index - 1) * delta_y,
 				x * delta_x, index * delta_y,
-				fill="#fb0"
+				width=0,
+				fill=self.colors[x - 1]
 			)
 		# self.update()
 
