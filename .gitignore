@@ -1,3 +1,5 @@
 .DS_Store
 testvenv
 .vscode
+.pytest_cache
+__pycache__
