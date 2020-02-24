@@ -14,7 +14,7 @@ from simple_calc import calc
 		["10- 2- -5", 13],
 		["(((10)))", 10],
 		["3 * 5", 15],
-		["-7 * -(6 / 3)", 14]
+		["-7 * -(6 / 3 + 2)", 28]
 	]
 )
 def test_simple(test_input, expected):
