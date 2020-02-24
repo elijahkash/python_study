@@ -1,4 +1,6 @@
-import pytest
+# import pytest
+
+# --tb=line
 
 from validate_battlefield import validate_battlefield
 
