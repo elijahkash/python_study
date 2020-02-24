@@ -1,20 +1,22 @@
 from collections import deque
 from collections import namedtuple
 
-Dot = namedtuple('Dot', 'x y')
-moves = deque((
-	Dot(0, 1),
-	Dot(1, 0),
-	Dot(0, -1),
-	Dot(-1, 0)
-))
-
 
 def spiralize(size):
+	Dot = namedtuple('Dot', 'x y')
+	moves = deque((
+		Dot(0, 1),
+		Dot(1, 0),
+		Dot(0, -1),
+		Dot(-1, 0)
+	))
+
 	spiral = [[0] * size for _ in range(size)]
 	spiral[0] = [1] * size
 	spiral[size - 1] = [1] * size
 	for i in range(size):
+		spiral[0][i] = 1
+		spiral[size - 1][i] = 1
 		spiral[i][size - 1] = 1
 	for i in range(2, size):
 		spiral[i][0] = 1
@@ -32,6 +34,3 @@ def spiralize(size):
 		mv += 1
 		spiral[pos.x][pos.y] = 1
 	return spiral
-
-
-print(*spiralize(8), sep='\n')

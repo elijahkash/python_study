@@ -12,6 +12,7 @@ def test_1():
 
 
 def test_2():
+	# print(spiralize(8))
 	assert spiralize(8) == [
 		[1, 1, 1, 1, 1, 1, 1, 1],
 		[0, 0, 0, 0, 0, 0, 0, 1],
