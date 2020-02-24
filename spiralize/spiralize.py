@@ -3,6 +3,8 @@ from collections import namedtuple
 
 
 def spiralize(size):
+	if not size:
+		return [[]]
 	Dot = namedtuple('Dot', 'x y')
 	moves = deque((
 		Dot(0, 1),
@@ -13,13 +15,18 @@ def spiralize(size):
 
 	spiral = [[0] * size for _ in range(size)]
 	spiral[0] = [1] * size
-	spiral[size - 1] = [1] * size
+	if size != 2:
+		spiral[size - 1] = [1] * size
+	if size < 3:
+		return spiral
 	for i in range(size):
 		spiral[0][i] = 1
 		spiral[size - 1][i] = 1
 		spiral[i][size - 1] = 1
 	for i in range(2, size):
 		spiral[i][0] = 1
+	if size == 3:
+		return spiral
 	pos = Dot(2, 0)
 	mv = 0
 	while True:
@@ -34,3 +41,4 @@ def spiralize(size):
 		mv += 1
 		spiral[pos.x][pos.y] = 1
 	return spiral
+
