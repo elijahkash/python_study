@@ -41,4 +41,3 @@ def spiralize(size):
 		mv += 1
 		spiral[pos.x][pos.y] = 1
 	return spiral
-
