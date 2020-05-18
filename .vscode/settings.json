@@ -1,4 +1,4 @@
 {
 	"python.pythonPath": "venv/bin/python",
-	"python.autoComplete.extraPaths": ["./two_sum"]
+	"python.autoComplete.extraPaths": ["./two_sum", "./add_two_num"]
 }
