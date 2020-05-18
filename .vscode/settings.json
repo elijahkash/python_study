@@ -1,4 +1,8 @@
 {
 	"python.pythonPath": "venv/bin/python",
-	"python.autoComplete.extraPaths": ["./two_sum", "./add_two_num"]
+	"python.autoComplete.extraPaths": [
+		"./two_sum",
+		"./add_two_num",
+		"./find_median_sort_arrays"
+	]
 }
