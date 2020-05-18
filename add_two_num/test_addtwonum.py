@@ -40,5 +40,3 @@ def test_4():
 	lst2 = add_two_num.ListNode(6, lst2)
 
 	assert add_two_num.Solution.addTwoNumbers(None, lst1, lst2).val == 107
-
-test_3()
