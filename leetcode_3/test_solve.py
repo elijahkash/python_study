@@ -19,3 +19,7 @@ def test_4():
 
 def test_5():
     assert(Solution.lengthOfLongestSubstring(None, 'a') == 1)
+
+
+def test_6():
+    assert(Solution.lengthOfLongestSubstring(None, 'au') == 2)
