@@ -3,6 +3,7 @@
 	"python.autoComplete.extraPaths": [
 		"./two_sum",
 		"./add_two_num",
-		"./find_median_sort_arrays"
+		"./find_median_sort_arrays",
+		"./leetcode_3"
 	]
 }
