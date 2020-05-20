@@ -5,6 +5,7 @@
 		"./add_two_num",
 		"./find_median_sort_arrays",
 		"./leetcode_3",
-		"./longest_pal"
+		"./longest_pal",
+		"./leetcode_915"
 	]
 }
