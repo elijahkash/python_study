@@ -6,6 +6,7 @@
 		"./find_median_sort_arrays",
 		"./leetcode_3",
 		"./longest_pal",
-		"./leetcode_915"
+		"./leetcode_915",
+		"./subfolders"
 	]
 }
