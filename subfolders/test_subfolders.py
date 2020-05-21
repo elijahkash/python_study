@@ -11,5 +11,3 @@ def test_2():
 
 def test_3():
     assert(Solution.removeSubfolders(None, ["/a/q"]) == ["/a/q"])
-
-# test_3()

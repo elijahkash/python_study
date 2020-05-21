@@ -7,6 +7,8 @@
 		"./leetcode_3",
 		"./longest_pal",
 		"./leetcode_915",
-		"./subfolders"
+		"./subfolders",
+		"./leetcode_21may",
+		"./leetcode_974"
 	]
 }
