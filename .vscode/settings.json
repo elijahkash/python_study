@@ -9,6 +9,9 @@
 		"./leetcode_915",
 		"./subfolders",
 		"./leetcode_21may",
-		"./leetcode_974"
+		"./leetcode_974",
+		"./hamming",
+		"./zigzag",
+		"./leetcode_11"
 	]
 }
