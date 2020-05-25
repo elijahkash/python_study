@@ -34,22 +34,18 @@ class Solution:
                 return ((nums1[d] + max(nums2[-1], nums1[d - 1])) / 2)
         # x = [d + 1: l1 - 1]; y = [1: l2 - 1]
         else:
-            x = l1 - d
-            if isOdd:
-                x -= 1
-            for y in range(1, l2):
-                x -= 1
+            xStart = l1 - d - (1 if isOdd else 0)
+            left = 1
+            right = l2 - 1
+            while left <= right:
+                y = left + (right - left) // 2
+                x = xStart - y
                 rval = min(nums1[x], nums2[y])
                 lval = max(nums1[x - 1], nums2[y - 1])
-                if isOdd:
-                    if rval >= lval:
-                        return rval
-                    else:
-                        continue
+                if rval >= lval:
+                    return rval if isOdd else (rval + lval) / 2
+                elif nums2[y] < nums1[x - 1]:
+                    left = y + 1
                 else:
-                    if rval >= lval:
-                        return (rval + lval) / 2
-                    else:
-                        continue
-
-        raise NameError('Shit!')
+                    right = y - 1
+        raise NameError('It should never reach this')
